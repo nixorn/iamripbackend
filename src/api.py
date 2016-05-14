@@ -1,4 +1,6 @@
 import json
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from flask import Flask, Blueprint, request, make_response
 from flask_restful import Resource, Api
 from sqlalchemy import or_
@@ -57,6 +59,8 @@ class Me(Resource):
 
     def patch(self):
         token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}
         users = session.query(User).filter(User.token==token).all()
         if not users:
             return {'message': 'unknown user'}
@@ -72,6 +76,8 @@ class Me(Resource):
     
     def get(self):
         token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}
         users = session.query(User).filter(User.token==token).all()
         if not users:
             return {'message': 'unknown user'}, 400
@@ -95,7 +101,34 @@ class Login(Resource):
             resp.status = '200'
             return resp
         except:
-            return {'message': 'Invalid login or password'}, 400        
+            return {'message': 'Invalid login or password'}, 400
+
+
+class MessageRoute(Resource):
+    
+    def post(self):
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}
+        users = session.query(User).filter(User.token==token).all()
+        if not users:
+            return {'message': 'unknown user'}, 400
+        u = users[0]
+        
+        msg_dict = request.get_json()
+        msg_dict.update(
+            {'user_id': u.id}
+        )
+
+        try:
+            m = Message(**msg_dict)
+            session.add(m)
+            session.commit()
+            return {'id': m.id}, 201
+        except:
+            session.rollback()
+            return {}, 400
+
 
 
 api.add_resource(Home, '/')
@@ -103,6 +136,7 @@ api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
 api.add_resource(Login, '/login')
+api.add_resource(MessageRoute, '/message')
 
 if __name__ == '__main__':
     app.run(debug=True)

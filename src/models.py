@@ -5,7 +5,14 @@ from sqlalchemy import Column, String, Text, Integer, DateTime, Boolean, Foreign
 
 from .engine import Base
 
-class User(Base):
+
+class ModelMixin(object):
+    def modify(self, **kwargs):
+        for field in kwargs.items():
+            setattr(self, field[0], field[1])
+    
+
+class User(Base, ModelMixin):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     username = Column(String(80), unique=True, nullable=False)
@@ -26,23 +33,20 @@ class User(Base):
     def __repr__(self):
         return '<User %r>' % self.username
     
-    def modify(self, **kwargs):
-        for field in kwargs.items():
-            setattr(self, field[0], field[1])
 
-class Message(Base):
+class Message(Base, ModelMixin):
     __tablename__ = 'message'
     id = Column(Integer, primary_key=True)
     user_id  = Column(Integer, ForeignKey('user.id'), nullable=False)
-    content = Column(Text, nullable=False)
+    text = Column(Text, nullable=False)
     uuid = Column(String(64), unique=True, nullable=False)
     is_processed = Column(Boolean)
     is_private = Column(Boolean)
 
     def __init__(self, **kwargs):
         self.user_id = kwargs['user_id']
-        self.content = kwargs['content']
-        self.uuid  = kwargs['uuid']
+        self.text = kwargs['text']
+        self.uuid  = uuid4().hex
         self.is_processed = kwargs.get('is_processed')
         self.is_private  = kwargs.get('is_private')
 
@@ -50,7 +54,7 @@ class Message(Base):
         return '<Message %r>' % self.id
 
 
-class Destination(Base):
+class Destination(Base, ModelMixin):
     __tablename__ = 'destination'
     id = Column(Integer, primary_key=True)
     message_id = Column(Integer, ForeignKey('message.id'), nullable=False)
@@ -63,8 +67,8 @@ class Destination(Base):
     def __repr__(self):
         return '<Destination %r>' % self.address
 
-		
-class SourceRecord(Base):
+
+class SourceRecord(Base, ModelMixin):
     __tablename__ = 'source_record'
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
@@ -80,7 +84,7 @@ class SourceRecord(Base):
         return '<SourceRecord %r>' % self.url
 
 
-class Source(Base):
+class Source(Base, ModelMixin):
     __tablename__ = 'source'
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
@@ -92,7 +96,7 @@ class Source(Base):
         return '<Source %r>' % self.name
 
 
-class Timer(Base):
+class Timer(Base, ModelMixin):
     __tablename__ = 'timer'
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, nullable=False)
@@ -115,7 +119,6 @@ class Timer(Base):
             last_checkdate = None
         self.next_checkdate = next_checkdate
         self.last_checkdate = last_checkdate
-
 
     def __repr__(self):
         return '<Timer>' 
