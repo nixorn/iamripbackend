@@ -158,7 +158,7 @@ api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
 api.add_resource(Login, '/login')
 api.add_resource(MessageRoute, '/message')
-#api.add_resource(GetMessage, '/message/')
+api.add_resource(GetMessage, '/message/<int:message_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
