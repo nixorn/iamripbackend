@@ -1,4 +1,5 @@
-from flask import Flask, Blueprint, request
+import json
+from flask import Flask, Blueprint, request, make_response
 from flask_restful import Resource, Api
 from sqlalchemy import or_
 from uuid import uuid4
@@ -22,8 +23,11 @@ class Register(Resource):
         try:
             session.add(u)
             session.commit()
-            return {'token': u.token}, 201
-        except:
+            resp = make_response(json.dumps({}))
+            resp.set_cookie('token', u.token)
+            resp.status = '201'
+            return resp
+        except :
             return {}, 400
 
 
@@ -50,10 +54,41 @@ class IsFree(Resource):
 
         return {'fields': fields}, 409
 
+class Me(Resource):
+
+    def patch(self):
+        token = request.cookies.get('token')
+        users = session.query(User).filter(User.token==token).all()
+        if not users:
+            return {'message': 'unknown user'}
+        try:    
+            u = users[0]
+            u.modify(**request.get_json())
+            session.add(u)
+            session.commit()
+            return {}, 200
+        except Exception as e:
+            session.rollback()
+            return {'message': str(e)}, 400
+    
+    def get(self):
+        token = request.cookies.get('token')
+        users = session.query(User).filter(User.token==token).all()
+        if not users:
+            return {'message': 'unknown user'}, 400
+        else:
+            u = users[0]
+            return {'username': u.username,
+                    'email': u.email,
+                    'firstname': u.firstname,
+                    'lastname': u.lastname}, 200
+        
+            
 
 api.add_resource(Home, '/')
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
+api.add_resource(Me, '/me')
 
 if __name__ == '__main__':
     app.run(debug=True)

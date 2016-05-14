@@ -9,7 +9,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(80), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
-    token = Column(String(32))
+    token = Column(String(32), unique=True)
     firstname = Column(String(100))
     lastname = Column(String(100))
     password = Column(String(32), nullable=False)
@@ -24,7 +24,10 @@ class User(Base):
 
     def __repr__(self):
         return '<User %r>' % self.username
-
+    
+    def modify(self, **kwargs):
+        for field in kwargs.items():
+            setattr(self, field[0], field[1])
 
 class Message(Base):
     __tablename__ = 'message'
