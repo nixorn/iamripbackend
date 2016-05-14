@@ -19,8 +19,12 @@ class Register(Resource):
         data = request.get_json()
         u = User(**data)
         u.token = uuid4().hex
-        save_record(session, u)
-        return {'token': u.token}, 201
+        try:
+            session.add(u)
+            session.commit()
+            return {'token': u.token}, 201
+        except:
+            return {}, 400
 
 
 class IsFree(Resource):
