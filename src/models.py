@@ -2,6 +2,7 @@ from uuid import uuid4
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import Column, String, Text, Integer, DateTime, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 
 from .engine import Base
 

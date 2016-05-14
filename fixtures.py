@@ -9,5 +9,15 @@ users = [{'username': 'iamrip',
           'firstname': 'iamrip',
           'lastname': 'iamrip',}]
 
+messages = [{'user_id': 1,
+             'text': 'so, guys. I am rip.'}]
+
+
+timers = [{'duration': 10000,
+           'message_id': 1}]
+
+
 fixtures = {'Source': sources,
-            'User': users}
+            'User': users,
+            'Message': messages,
+            'Timer': timers}
