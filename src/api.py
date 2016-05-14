@@ -160,10 +160,17 @@ class GetMessage(Resource):
         
         owner = session.query(User).filter(User.token==token, User.id==m.user_id).all()
         if not owner:
-            return {'this message is not yours'}, 400
+            return {'message': 'this message is not yours'}, 400
 
-        print(m.text)
+        t = session.query(Timer).filter(Timer.message_id==m.id).all()
+        if not t:
+            return {'message': 'this message have no timer. something wrong'}, 400
+        t = t[0]
 
+        return {
+            'text': m.text,
+            'is_private': m.is_private,
+            'duration': t.duration}, 200
 
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
