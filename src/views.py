@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, abort
+from jinja2 import TemplateNotFound
 
 views_bp = Blueprint('views_bp', __name__, template_folder='templates')
 @views_bp.route('/registration')

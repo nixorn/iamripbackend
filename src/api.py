@@ -147,7 +147,10 @@ class MessageRoute(Resource):
             session.rollback()
             return {}, 400
 
-
+class GetMessage(Resource):
+    
+    def get(self, message_id):
+        pass
 
 api.add_resource(Home, '/')
 api.add_resource(Register, '/register')
@@ -155,6 +158,7 @@ api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
 api.add_resource(Login, '/login')
 api.add_resource(MessageRoute, '/message')
+#api.add_resource(GetMessage, '/message/')
 
 if __name__ == '__main__':
     app.run(debug=True)
