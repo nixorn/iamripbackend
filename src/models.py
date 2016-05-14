@@ -1,4 +1,5 @@
 from uuid import uuid4
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import Column, String, Text, Integer, DateTime, Boolean, ForeignKey
 
@@ -105,19 +106,11 @@ class Timer(Base, ModelMixin):
     last_checkdate = Column(DateTime)
 
     def __init__(self, **kwargs):
-        self.created_at = kwargs['created_at']
+        self.created_at = str(datetime.now())
         self.duration = kwargs['duration']
         self.message_id = kwargs['message_id']
-        try:
-            next_checkdate = kwargs.get('next_checkdate')
-        except:
-            next_checkdate = None
-        try:
-            last_checkdate = kwargs.get('last_checkdate')
-        except:
-            last_checkdate = None
-        self.next_checkdate = next_checkdate
-        self.last_checkdate = last_checkdate
+        self.next_checkdate = datetime.now() + relativedelta(minutes=int(self.duration))
+        self.last_checkdate = str(datetime.now())
 
     def __repr__(self):
         return '<Timer>' 

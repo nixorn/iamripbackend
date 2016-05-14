@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from dateutil.parser import parse
 from flask import Flask, Blueprint, request, make_response
 from flask_restful import Resource, Api
 from sqlalchemy import or_
@@ -144,6 +145,7 @@ class MessageRoute(Resource):
             session.rollback()
             return {}, 400
 
+
 class GetMessage(Resource):
     
     def get(self, message_id):
@@ -155,7 +157,6 @@ class GetMessage(Resource):
         m = session.query(Message).filter(Message.id==message_id).all()
         if not m:
             return {'message': 'no such message'}, 400
-        
         m = m[0]
         
         owner = session.query(User).filter(User.token==token, User.id==m.user_id).all()
@@ -172,12 +173,60 @@ class GetMessage(Resource):
             'is_private': m.is_private,
             'duration': t.duration}, 200
 
+    def patch(self, message_id):
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+        message_id = int(message_id)
+
+        m = session.query(Message).filter(Message.id==message_id).all()
+        if not m:
+            return {'message': 'no such message'}, 400
+        m = m[0]
+        
+        owner = session.query(User).filter(User.token==token, User.id==m.user_id).all()
+        if not owner:
+            return {'message': 'this message is not yours'}, 400
+
+        t = session.query(Timer).filter(Timer.message_id==m.id).all()
+        if not t:
+            return {'message': 'this message have no timer. something wrong'}, 400
+        t = t[0]
+        
+        rq = request.get_json()
+
+        duration = rq.get('duration')
+        if duration:
+            duration = int(duration)
+            t.next_checkdate = str(t.next_checkdate + relativedelta(minutes=duration-t.duration))
+            t.duration = duration
+        
+        text = rq.get('text')
+        if text:
+            m.text = text
+
+        m.is_private = rq.get('is_private')
+        try:
+            session.add(m)
+            session.add(t)
+            session.commit()
+        except:
+            session.rollback()
+            return {'message':'something wrong'}
+        
+        return {
+            'text': m.text,
+            'is_private': m.is_private,
+            'duration': t.duration}, 200
+
+
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
 api.add_resource(Login, '/login')
 api.add_resource(MessageRoute, '/message')
 api.add_resource(GetMessage, '/message/<int:message_id>')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
