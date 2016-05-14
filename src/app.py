@@ -8,6 +8,8 @@ from .api import api_bp
 
 app = Flask(__name__)
 app.register_blueprint(api_bp, url_prefix='/api')    
+app.jinja_env.add_extension('pyjade.ext.jinja.PyJadeExtension')
+app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 
 if __name__ == '__main__':
     app.run(debug=True)
