@@ -1,8 +1,8 @@
-from engine import Base
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import Column, String, Text, Integer, DateTime, Boolean, ForeignKey
 
+from .engine import Base
 
 class User(Base):
     __tablename__ = 'user'
