@@ -24,3 +24,4 @@ simplegeneric==0.8.1
 six==1.10.0
 traitlets==4.2.1
 uuid==1.30
+vk==2.0.2
