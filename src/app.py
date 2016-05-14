@@ -7,7 +7,7 @@ from .api import api_bp
 from .views import views_bp
 
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='')
 app.jinja_env.add_extension('pyjade.ext.jinja.PyJadeExtension')
 app.jinja_env.add_extension('jinja2.ext.loopcontrols')
 app.register_blueprint(api_bp, url_prefix='/api')
