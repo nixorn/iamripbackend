@@ -1,3 +1,4 @@
+from uuid import uuid4
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import Column, String, Text, Integer, DateTime, Boolean, ForeignKey
@@ -9,7 +10,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(80), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
-    token = Column(String(32), unique=True)
+    token = Column(String(32), unique=True, nullable=False)
     firstname = Column(String(100))
     lastname = Column(String(100))
     password = Column(String(32), nullable=False)
@@ -17,7 +18,7 @@ class User(Base):
     def __init__(self, **kwargs):
         self.username = kwargs['username']
         self.email = kwargs['email']
-        self.token = kwargs.get('token')
+        self.token = uuid4().hex
         self.firstname = kwargs.get('firstname')
         self.lastname = kwargs.get('lastname')
         self.password = kwargs['password']
@@ -43,7 +44,7 @@ class Message(Base):
         self.content = kwargs['content']
         self.uuid  = kwargs['uuid']
         self.is_processed = kwargs.get('is_processed')
-        self.is_private  = kwargs['is_private']
+        self.is_private  = kwargs.get('is_private')
 
     def __repr__(self):
         return '<Message %r>' % self.id

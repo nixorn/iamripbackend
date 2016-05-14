@@ -2,7 +2,7 @@ import json
 from flask import Flask, Blueprint, request, make_response
 from flask_restful import Resource, Api
 from sqlalchemy import or_
-from uuid import uuid4
+
 from .models import *
 from .engine import session
 from .lib import *
@@ -19,7 +19,6 @@ class Register(Resource):
     def post(self):
         data = request.get_json()
         u = User(**data)
-        u.token = uuid4().hex
         try:
             session.add(u)
             session.commit()
@@ -82,13 +81,28 @@ class Me(Resource):
                     'email': u.email,
                     'firstname': u.firstname,
                     'lastname': u.lastname}, 200
-        
-            
+
+
+class Login(Resource):
+    def get(self):
+        data = request.get_json()
+        try:
+            u = session.query(User)\
+                       .filter(User.username==data['username'], 
+                               User.password==data['password']).one()
+            resp = make_response(json.dumps({}))
+            resp.set_cookie('token', u.token)
+            resp.status = '200'
+            return resp
+        except:
+            return {'message': 'Invalid login or password'}, 400        
+
 
 api.add_resource(Home, '/')
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
+api.add_resource(Login, '/login')
 
 if __name__ == '__main__':
     app.run(debug=True)
