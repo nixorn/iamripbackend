@@ -9,6 +9,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(80), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
+    token = Column(String(32))
     firstname = Column(String(100))
     lastname = Column(String(100))
     password = Column(String(32), nullable=False)
@@ -16,6 +17,7 @@ class User(Base):
     def __init__(self, **kwargs):
         self.username = kwargs['username']
         self.email = kwargs['email']
+        self.token = kwargs.get('token')
         self.firstname = kwargs.get('firstname')
         self.lastname = kwargs.get('lastname')
         self.password = kwargs['password']
