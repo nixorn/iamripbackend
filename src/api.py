@@ -252,6 +252,29 @@ class GetMessage(Resource):
             session.rollback()
             return {'message': 'something wrong'}, 400
                 
+class Messages(Resource):
+    def get(self):
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+
+        owner = session.query(User).filter(User.token==token).all()
+        if not owner:
+            return {'message': 'unknown token'}, 400
+        owner = owner[0]
+        
+        messages = session.query(Message.id, 
+                                 Message.text,
+                                 Message.is_private,
+                                 Timer.duration)\
+                          .filter(Message.user_id==owner.id,
+                                  Timer.message_id==Message.id)\
+                          .all()
+        return {'messages':[
+            {'id': m.id,
+             'text': m.text,
+             'is_private': m.is_private,
+             'duration': m.duration} for m in messages]}, 200
 
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
@@ -259,6 +282,7 @@ api.add_resource(Me, '/me')
 api.add_resource(Login, '/login')
 api.add_resource(MessageRoute, '/message')
 api.add_resource(GetMessage, '/message/<int:message_id>')
+api.add_resource(Messages, '/me/messages')
 
 
 if __name__ == '__main__':
