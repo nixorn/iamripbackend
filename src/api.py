@@ -276,6 +276,14 @@ class Messages(Resource):
              'is_private': m.is_private,
              'duration': m.duration} for m in messages]}, 200
 
+class Sources(Resource):
+    def get(self):
+        return {
+            'sourcetypes': [
+                {'id': s.id, 
+                 'name': s.name} for s in session.query(Source).all()
+            ]}, 200
+
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
@@ -283,6 +291,7 @@ api.add_resource(Login, '/login')
 api.add_resource(MessageRoute, '/message')
 api.add_resource(GetMessage, '/message/<int:message_id>')
 api.add_resource(Messages, '/me/messages')
+api.add_resource(Sources, '/sources')
 
 
 if __name__ == '__main__':
