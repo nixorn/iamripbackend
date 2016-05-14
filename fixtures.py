@@ -1,7 +1,13 @@
 sources = [{'name': 'vk'},
            {'name': 'twitter'},
-           {'name': 'facebook'},
-]
+           {'name': 'facebook'}]
 
+users = [{'username': 'iamrip',
+          'email': 'iamrip',
+          'token': 'iamrip',
+          'password': 'iamrip',
+          'firstname': 'iamrip',
+          'lastname': 'iamrip',}]
 
-fixtures = {'Source': sources}
+fixtures = {'Source': sources,
+            'User': users}

@@ -102,7 +102,7 @@ class Login(Resource):
             return {'message': 'Invalid login or password'}, 400
 
 
-class MessageRoute(Resource):
+class MessagePoster(Resource):
     
     def post(self):
         token = request.cookies.get('token')
@@ -146,7 +146,7 @@ class MessageRoute(Resource):
             return {}, 400
 
 
-class GetMessage(Resource):
+class MessageManage(Resource):
     
     def get(self, message_id):
         token = request.cookies.get('token')
@@ -276,6 +276,7 @@ class Messages(Resource):
              'is_private': m.is_private,
              'duration': m.duration} for m in messages]}, 200
 
+
 class Sources(Resource):
     def get(self):
         return {
@@ -284,15 +285,62 @@ class Sources(Resource):
                  'name': s.name} for s in session.query(Source).all()
             ]}, 200
 
+
+class SourceRecordPoster(Resource):
+    def post(self):
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+
+        owner = session.query(User).filter(User.token==token).all()
+        if not owner:
+            return {'message': 'unknown token'}, 400
+        owner = owner[0]
+        
+        rec_dict = request.get_json()
+        source = rec_dict['source_id']
+        record_exists = session.query(SourceRecord)\
+                               .filter(SourceRecord.user_id==owner.id,
+                                       SourceRecord.source_id==source)\
+                               .all()
+        if record_exists:
+            return {'message': 'such record already exists'}
+        
+        
+        rec_dict.update({'user_id': owner_id})
+        
+        rec = SourceRecord(**rec_dict)
+        try:
+            session.add(rec)
+            session.commit()
+            return {}, 200
+        except:
+            session.rollback()
+            return {'message': 'something wrong'}, 400
+            
+
+class SourceRecordManage(Resource):
+
+    def get(self, sr_id):
+        pass
+        
+    def patch(self, sr_id):
+        pass
+
+    def delete(self, sr_id):
+        pass
+
+
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
 api.add_resource(Login, '/login')
-api.add_resource(MessageRoute, '/message')
-api.add_resource(GetMessage, '/message/<int:message_id>')
+api.add_resource(MessagePoster, '/message')
+api.add_resource(MessageManage, '/message/<int:message_id>')
 api.add_resource(Messages, '/me/messages')
 api.add_resource(Sources, '/sources')
-
+api.add_resource(SourceRecordPoster, '/source_record')
+api.add_resource(SourceRecordManage, '/source_record/<int:sr_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
