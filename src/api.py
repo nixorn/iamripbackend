@@ -359,7 +359,6 @@ class SourceRecordManage(Resource):
         url = rq.get('url')
         if text:
             s.url = url
-
         try:
             session.add(s)
             session.commit()
@@ -413,7 +412,25 @@ class SourceRecords(Resource):
             {'id': s.id,
              'source_id': s.source_id,
              'url': s.url} for s in source_records]}, 200
+
+
+class Destinations(Resource):
+
+    def get(self, message_id):
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
         
+        res = session.query(Destination).filter(Destination.message_id==message_id,
+                                                Message.id==message_id,
+                                                Message.user_id==User.id,
+                                                User.token==token)\
+                                        .all()
+        return {'destinations':[
+            {'id': d.id,
+             'email': d.email} for d in res]}
+
+
         
     
 api.add_resource(Register, '/register')
@@ -421,12 +438,14 @@ api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
 api.add_resource(Login, '/login')
 api.add_resource(MessagePoster, '/message')
+api.add_resource(Destinations, '/message/<int:message_id>/destinations')
 api.add_resource(MessageManage, '/message/<int:message_id>')
 api.add_resource(Messages, '/me/messages')
 api.add_resource(Sources, '/sources')
 api.add_resource(SourceRecordPoster, '/source_record')
 api.add_resource(SourceRecordManage, '/source_record/<int:sr_id>')
 api.add_resource(SourceRecords, '/me/source_records')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
