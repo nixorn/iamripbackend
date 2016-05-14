@@ -13,9 +13,6 @@ from .lib import *
 api_bp = Blueprint('api', __name__)
 api = Api(api_bp)
 
-class Home(Resource):
-    def get(self):
-        return {'foo': 'bar'}
     
 class Register(Resource):
     def post(self):
@@ -109,7 +106,7 @@ class MessageRoute(Resource):
     def post(self):
         token = request.cookies.get('token')
         if not token:
-            return {'message': 'log in please'}
+            return {'message': 'log in please'}, 400
         users = session.query(User).filter(User.token==token).all()
         if not users:
             return {'message': 'unknown user'}, 400
@@ -150,9 +147,31 @@ class MessageRoute(Resource):
 class GetMessage(Resource):
     
     def get(self, message_id):
-        pass
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+        message_id = int(message_id)
 
-api.add_resource(Home, '/')
+        m = session.query(Message).filter(Message.id==message_id).all()
+        if not m:
+            return {'message': 'no such message'}, 400
+        
+        m = m[0]
+        
+        owner = session.query(User).filter(User.token==token, User.id==m.user_id).all()
+        if not owner:
+            return {'message': 'this message is not yours'}, 400
+
+        t = session.query(Timer).filter(Timer.message_id==m.id).all()
+        if not t:
+            return {'message': 'this message have no timer. something wrong'}, 400
+        t = t[0]
+
+        return {
+            'text': m.text,
+            'is_private': m.is_private,
+            'duration': t.duration}, 200
+
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
