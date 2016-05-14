@@ -322,15 +322,100 @@ class SourceRecordPoster(Resource):
 class SourceRecordManage(Resource):
 
     def get(self, sr_id):
-        pass
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+
+        s = session.query(SourceRecord).filter(SourceRecord.id==sr_id).all()
+        if not m:
+            return {'message': 'no such source record'}, 400
+        s = s[0]
         
+        owner = session.query(User).filter(User.token==token, User.id==s.user_id).all()
+        if not owner:
+            return {'message': 'this source_record is not yours'}, 400
+
+        return {
+            'id': s.id,
+            'source_id': s.source_id,
+            'url': s.source_url}, 200
+
     def patch(self, sr_id):
-        pass
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+        
+        s = session.query(SourceRecord).filter(Message.id==sr_id).all()
+        if not s:
+            return {'message': 'no such message'}, 400
+        s = s[0]
+        
+        owner = session.query(User).filter(User.token==token, User.id==s.user_id).all()
+        if not owner:
+            return {'message': 'this source record is not yours'}, 400
+
+        rq = request.get_json()
+
+        url = rq.get('url')
+        if text:
+            s.url = url
+
+        try:
+            session.add(s)
+            session.commit()
+        except:
+            session.rollback()
+            return {'message':'something wrong'}
+        
+        return {
+            'url': s.url}, 200
 
     def delete(self, sr_id):
-        pass
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+        
+        s = session.query(SessionRecord).filter(SessionRecord.id==sr_id).all()
+        if not s:
+            return {'message': 'no such source record'}, 400
+        s = s[0]
+        
+        owner = session.query(User).filter(User.token==token, User.id==s.user_id).all()
+        if not owner:
+            return {'message': 'this source record is not yours'}, 400
+        
+        session.delete(s)
+        try:
+            session.commit()
+            return {}, 200
+        except:
+            session.rollback()
+            return {'message': 'something wrong'}, 400
 
 
+class SourceRecords(Resource):
+    def get(self):
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+
+        owner = session.query(User).filter(User.token==token).all()
+
+        if not owner:
+            return {'message': 'unknown token'}, 400
+        owner = owner[0]
+        
+        source_records = session.query(SourceRecord)\
+                                .filter(owner.id==SourceRecord.user_id)\
+                                .all()
+
+        return {'source_records':[
+            {'id': s.id,
+             'source_id': s.source_id,
+             'url': s.url} for s in source_records]}, 200
+        
+        
+    
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
 api.add_resource(Me, '/me')
@@ -341,6 +426,7 @@ api.add_resource(Messages, '/me/messages')
 api.add_resource(Sources, '/sources')
 api.add_resource(SourceRecordPoster, '/source_record')
 api.add_resource(SourceRecordManage, '/source_record/<int:sr_id>')
+api.add_resource(SourceRecords, '/me/source_records')
 
 if __name__ == '__main__':
     app.run(debug=True)
