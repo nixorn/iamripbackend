@@ -219,6 +219,39 @@ class GetMessage(Resource):
             'is_private': m.is_private,
             'duration': t.duration}, 200
 
+    def delete(self, message_id):
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+        message_id = int(message_id)
+
+        m = session.query(Message).filter(Message.id==message_id).all()
+        if not m:
+            return {'message': 'no such message'}, 400
+        m = m[0]
+        
+        owner = session.query(User).filter(User.token==token, User.id==m.user_id).all()
+        if not owner:
+            return {'message': 'this message is not yours'}, 400
+        
+        t = session.query(Timer).filter(Timer.message_id==m.id).all()
+        if t:
+            t = t[0]
+            session.delete(t)
+
+        d = session.query(Destination).filter(Destination.message_id==m.id).all()
+        if d:
+            d = d[0]
+            session.delete(d)
+
+        session.delete(m)
+        try:
+            session.commit()
+            return {}, 200
+        except:
+            session.rollback()
+            return {'message': 'something wrong'}, 400
+                
 
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
