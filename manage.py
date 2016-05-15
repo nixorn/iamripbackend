@@ -1,7 +1,6 @@
 from src.models import *
 from src.engine import *
 from src.app import app
-from src.loop import loop
 from fixtures import fixtures 
 
 
@@ -13,6 +12,7 @@ def drop_database():
     Base.metadata.drop_all(engine)
 
 def run_loop():
+    from src.loop import loop
     loop()
 
 def run_application():
