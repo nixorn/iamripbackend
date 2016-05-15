@@ -42,7 +42,7 @@ def show_message(uuid):
         user = get_user(request)
     return render_template('message.jade', logged_in=logged_in, is_profile=False, message=m, user=user)
 
-@views_bp.route('/search')
+@views_bp.route('/search', methods=["POST"])
 def search():
     words = request.form['words']
     m = session.query(Message).filter(Message.text.like("%"+words+"%")).all()
