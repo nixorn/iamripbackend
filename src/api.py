@@ -260,6 +260,7 @@ class Messages(Resource):
         
         messages = session.query(Message.id, 
                                  Message.text,
+                                 Message.uuid,
                                  Message.is_private,
                                  Message.is_processed,
                                  Timer.duration)\
@@ -268,6 +269,7 @@ class Messages(Resource):
                           .all()
         return {'messages':[
             {'id': m.id,
+             'uuid': m.uuid,
              'text': m.text,
              'is_private': m.is_private,
              'is_processed': m.is_processed,

@@ -63,36 +63,57 @@ def profile_messages():
         user = get_user(request)
     else:
         return "Please, login first"
-    messages = [
-        {
-            "id": 250,
-            "text": "Some text there some text there",
-            "is_private": True,
-            "is_processed": False,
-            "duration": 3457,
-            "uuid": "347rtg97fh932h4f"
-        },
-        {
-            "id": 110,
-            "text": "Some text there some text there",
-            "is_private": True,
-            "is_processed": True,
-            "duration": 3457,
-            "uuid": "347297297e932h4f"
-        },
-        {
-            "id": 80,
-            "text": "Some small text there",
-            "is_private": False,
-            "is_processed": False,
-            "duration": 359,
-            "uuid": "0283rh0238fh23"
-        }
-    ]
-    for message in messages:
+    # messages = [
+        # {
+            # "id": 250,
+            # "text": "Some text there some text there",
+            # "is_private": True,
+            # "is_processed": False,
+            # "duration": 3457,
+            # "uuid": "347rtg97fh932h4f"
+        # },
+        # {
+            # "id": 110,
+            # "text": "Some text there some text there",
+            # "is_private": True,
+            # "is_processed": True,
+            # "duration": 3457,
+            # "uuid": "347297297e932h4f"
+        # },
+        # {
+            # "id": 80,
+            # "text": "Some small text there",
+            # "is_private": False,
+            # "is_processed": False,
+            # "duration": 359,
+            # "uuid": "0283rh0238fh23"
+        # }
+    # ]
+    owner = user
+    messages = session.query(Message.id, 
+                            Message.text,
+                            Message.uuid,
+                            Message.is_private,
+                            Message.is_processed,
+                            Timer.duration)\
+                        .filter(Message.user_id==owner.id,
+                            Timer.message_id==Message.id)\
+                        .all()
+    real_messages = [
+            {
+                'id': m.id,
+                'uuid': m.uuid,
+                'text': m.text,
+                'is_private': m.is_private,
+                'is_processed': m.is_processed,
+                'duration': m.duration} for m in messages ]
+
+
+    for message in real_messages:
         message["hours"] = message["duration"] // 60
         message["minutes"] = message["duration"] % 60
-    return render_template('profile_messages.jade', logged_in=True, is_profile=True, page="messages", messages=messages, user=user)
+    print(real_messages)
+    return render_template('profile_messages.jade', logged_in=True, is_profile=True, page="messages", messages=real_messages, user=user)
 
 
 @views_bp.route('/registration')
