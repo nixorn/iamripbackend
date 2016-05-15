@@ -17,7 +17,8 @@ timers = [{'duration': 10000,
            'message_id': 1}]
 
 source_records = [{'user_id': 1,
-                   'source_id': 1}]
+                   'source_id': 1,
+                   'url': 'https://vk.com/id212740840'}]
 
 fixtures = {'Source': sources,
             'SourceRecord': source_records,
