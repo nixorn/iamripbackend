@@ -121,16 +121,6 @@ class MessagePoster(Resource):
         
         duration = int(request.get_json()['duration'])
         
-        m = Message(**msg_dict)
-        session.add(m)
-        session.commit()
-        t = Timer(duration=duration,
-                  created_at=str(datetime.now()),
-                  next_checkdate=(datetime.now()+relativedelta(minutes=duration)),
-                  message_id=m.id)
-        session.add(t)
-        session.commit()
-        return {'id': m.id}, 201
         try:
             m = Message(**msg_dict)
             session.add(m)
