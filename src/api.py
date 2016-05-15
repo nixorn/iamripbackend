@@ -435,6 +435,35 @@ class Destinations(Resource):
             {'id': d.id,
              'email': d.email} for d in res]}
 
+class DestinationPoster(Resource):
+
+    def post(self):
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
+        
+        owner = session.query(User).filter(User.token==token).all()
+        if not owner:
+            return {'message': 'unknown token'}, 400
+        owner = owner[0]
+        
+        d = request.get_json()
+        message_uuid =  d['message_uuid']
+        email = d['mymail@gmail.com']
+        m = session.query(Message).filter(Message.uuid==message_uuid).all()
+        if not m:
+            return {'message':'no message with such uuid'}, 400
+        m = m[0]
+        
+        dest = Destination(message_id=m.id, email=email)
+        try:
+            session.add(dest)
+            session.commit()
+            return {}, 201
+        except:
+            session.rollback()
+            return {'message': 'something wrong'}, 400
+
     
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
@@ -448,6 +477,7 @@ api.add_resource(Sources, '/sources')
 api.add_resource(SourceRecordPoster, '/source_record')
 api.add_resource(SourceRecordManage, '/source_record/<int:sr_id>')
 api.add_resource(SourceRecords, '/me/source_records')
+api.add_resource(DestinationPoster, '/destination')
 
 
 if __name__ == '__main__':
