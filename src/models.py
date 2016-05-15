@@ -114,5 +114,5 @@ class Timer(Base, ModelMixin):
         self.last_checkdate = str(datetime.now())
 
     def __repr__(self):
-        return '<Timer>' 
+        return '<Timer %s>'%self.id
 

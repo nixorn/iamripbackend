@@ -89,7 +89,7 @@ class Me(Resource):
 
 
 class Login(Resource):
-    def post(self):
+    def get(self):
         data = request.get_json()
         try:
             u = session.query(User)\
@@ -100,7 +100,7 @@ class Login(Resource):
             resp.status = '200'
             return resp
         except:
-            return {'message': 'Invalid login or password'}, 406
+            return {'message': 'Invalid login or password'}, 400
 
 
 class MessagePoster(Resource):
@@ -141,7 +141,7 @@ class MessagePoster(Resource):
                       message_id=m.id)
             session.add(t)
             session.commit()
-            return {'id': m.id}, 201
+            return {'id': m.id, 'id': m.uuid}, 201
         except:
             session.rollback()
             return {}, 400
@@ -172,6 +172,7 @@ class MessageManage(Resource):
         return {
             'text': m.text,
             'is_private': m.is_private,
+            'is_processed': m.is_processed,
             'duration': t.duration}, 200
 
     def patch(self, message_id):
@@ -218,6 +219,7 @@ class MessageManage(Resource):
         return {
             'text': m.text,
             'is_private': m.is_private,
+            'is_processed': m.is_processed,
             'duration': t.duration}, 200
 
     def delete(self, message_id):
@@ -267,6 +269,7 @@ class Messages(Resource):
         messages = session.query(Message.id, 
                                  Message.text,
                                  Message.is_private,
+                                 Message.is_processed,
                                  Timer.duration)\
                           .filter(Message.user_id==owner.id,
                                   Timer.message_id==Message.id)\
@@ -275,6 +278,7 @@ class Messages(Resource):
             {'id': m.id,
              'text': m.text,
              'is_private': m.is_private,
+             'is_processed': m.is_processed,
              'duration': m.duration} for m in messages]}, 200
 
 
@@ -308,7 +312,7 @@ class SourceRecordPoster(Resource):
             return {'message': 'such record already exists'}
         
         
-        rec_dict.update({'user_id': owner_id})
+        rec_dict.update({'user_id': owner.id})
         
         rec = SourceRecord(**rec_dict)
         try:
@@ -431,8 +435,35 @@ class Destinations(Resource):
             {'id': d.id,
              'email': d.email} for d in res]}
 
+class DestinationPoster(Resource):
 
+    def post(self):
+        token = request.cookies.get('token')
+        if not token:
+            return {'message': 'log in please'}, 400
         
+        owner = session.query(User).filter(User.token==token).all()
+        if not owner:
+            return {'message': 'unknown token'}, 400
+        owner = owner[0]
+        
+        d = request.get_json()
+        message_uuid =  d['message_uuid']
+        email = d['mymail@gmail.com']
+        m = session.query(Message).filter(Message.uuid==message_uuid).all()
+        if not m:
+            return {'message':'no message with such uuid'}, 400
+        m = m[0]
+        
+        dest = Destination(message_id=m.id, email=email)
+        try:
+            session.add(dest)
+            session.commit()
+            return {}, 201
+        except:
+            session.rollback()
+            return {'message': 'something wrong'}, 400
+
     
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
@@ -446,6 +477,7 @@ api.add_resource(Sources, '/sources')
 api.add_resource(SourceRecordPoster, '/source_record')
 api.add_resource(SourceRecordManage, '/source_record/<int:sr_id>')
 api.add_resource(SourceRecords, '/me/source_records')
+api.add_resource(DestinationPoster, '/destination')
 
 
 if __name__ == '__main__':

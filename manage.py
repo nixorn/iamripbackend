@@ -19,7 +19,7 @@ def run_application():
     app.run(debug=True)
 
 def load_fixtures():
-    for model_name in ['User', 'Message', 'Timer', 'Source']:
+    for model_name in ['User', 'Message', 'Timer', 'Source', 'SourceRecord']:
         records = fixtures[model_name]
         model = globals()[model_name]
         for record in records:
