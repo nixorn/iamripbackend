@@ -89,7 +89,7 @@ class Me(Resource):
 
 
 class Login(Resource):
-    def get(self):
+    def post(self):
         data = request.get_json()
         try:
             u = session.query(User)\
@@ -100,7 +100,7 @@ class Login(Resource):
             resp.status = '200'
             return resp
         except:
-            return {'message': 'Invalid login or password'}, 400
+            return {'message': 'Invalid login or password'}, 406
 
 
 class MessagePoster(Resource):
