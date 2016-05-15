@@ -5,6 +5,8 @@ from .models import *
 from .engine import session
 from .lib import *
 
+import random
+
 views_bp = Blueprint('views_bp', __name__, template_folder='templates')
 
 def is_user_logged_it(request):
@@ -32,7 +34,6 @@ def index():
 
 @views_bp.route('/message/<uuid>')
 def show_message(uuid):
-    
     m = session.query(Message).filter(Message.uuid==uuid).all()
     m = m[0]
     logged_in = False
@@ -40,6 +41,16 @@ def show_message(uuid):
         logged_in = True
         user = get_user(request)
     return render_template('message.jade', logged_in=logged_in, is_profile=False, message=m, user=user)
+
+@views_bp.route('/randrom')
+def show_random_message(uuid):
+    m = session.query(Message).all()
+    m = random.choice(m)
+    logged_in = False
+    if is_user_logged_it(request):
+        logged_in = True
+        user = get_user(request)
+    return render_template('message_random.jade', logged_in=logged_in, is_profile=False, message=m, user=user)
 
 @views_bp.route('/profile')
 @views_bp.route('/profile/settings')
