@@ -46,11 +46,54 @@ def profile_sources():
     else:
         return "Please, login first"
     sources = [
-        { "name": "vk", "title": "ВКонтакте", "link": "vk.com" },
-        { "name": "twitter", "title": "Twitter", "link": "twitter.com" },
-        { "name": "hash", "title": "Raw hash", "link": "anyurl" }
-    ]
+                {'id': s.id, 
+                 'name': s.name} for s in session.query(Source).all()
+            ]
+    # print(real)
+    # sources = [
+        # { "name": "vk", "title": "ВКонтакте", "link": "vk.com" },
+        # { "name": "twitter", "title": "Twitter", "link": "twitter.com" },
+        # { "name": "facebook", "title": "Raw hash", "link": "anyurl" }
+    # ]
     return render_template('profile_sources.jade', logged_in=True, is_profile=True, page="sources", sources=sources, user=user)
+
+@views_bp.route('/profile/messages')
+def profile_messages():
+    if is_user_logged_it(request):
+        user = get_user(request)
+    else:
+        return "Please, login first"
+    messages = [
+        {
+            "id": 250,
+            "text": "Some text there some text there",
+            "is_private": True,
+            "is_processed": False,
+            "duration": 3457,
+            "uuid": "347rtg97fh932h4f"
+        },
+        {
+            "id": 110,
+            "text": "Some text there some text there",
+            "is_private": True,
+            "is_processed": True,
+            "duration": 3457,
+            "uuid": "347297297e932h4f"
+        },
+        {
+            "id": 80,
+            "text": "Some small text there",
+            "is_private": False,
+            "is_processed": False,
+            "duration": 359,
+            "uuid": "0283rh0238fh23"
+        }
+    ]
+    for message in messages:
+        message["hours"] = message["duration"] // 60
+        message["minutes"] = message["duration"] % 60
+    return render_template('profile_messages.jade', logged_in=True, is_profile=True, page="messages", messages=messages, user=user)
+
 
 @views_bp.route('/registration')
 def registration():
