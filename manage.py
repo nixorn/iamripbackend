@@ -1,6 +1,7 @@
 from src.models import *
 from src.engine import *
 from src.app import app
+from src.loop import loop
 from fixtures import fixtures 
 
 
@@ -10,6 +11,9 @@ def create_database():
 
 def drop_database():
     Base.metadata.drop_all(engine)
+
+def run_loop():
+    loop()
 
 def run_application():
     app.run(debug=True)
@@ -36,8 +40,9 @@ parser_database = subparsers.add_parser('database', help='database operations')
 parser_database.add_argument('--recreate', action='store_true')
 parser_database.add_argument('--load_fixtures', action='store_true')
 
-parser_application = subparsers.add_parser('app', help='application manager')
-parser_application.add_argument('--run', action='store_true')
+parser_application = subparsers.add_parser('app', help='run')
+
+parser_application = subparsers.add_parser('loop', help='loop')
 
 
 if __name__ == '__main__':
@@ -51,5 +56,7 @@ if __name__ == '__main__':
             load_fixtures()
 
     elif args.subparser_name == 'app':
-        if args.run:
-            run_application()
+        run_application()
+
+    elif args.subparser_name == 'loop':
+        run_loop()
