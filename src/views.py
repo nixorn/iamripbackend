@@ -30,7 +30,7 @@ def index():
         logged_in = True
     return render_template('index.jade', logged_in=logged_in, is_profile=False)
 
-@views_bp.route('/message/<str:uuid>')
+@views_bp.route('/message/<uuid>')
 def show_message(uuid):
     
     m = session.query(Message).filter(Message.uuid==uuid).all()
