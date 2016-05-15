@@ -53,6 +53,13 @@ def show_random_message():
     user = session.query(User).filter(User.id==user_id).first()
     return render_template('message_random.jade', logged_in=logged_in, is_profile=False, message=m, user=user)
 
+@views_bp.route('/help')
+def help():
+    logged_in = False
+    if is_user_logged_it(request):
+        logged_in = True
+    return render_template('help.jade', logged_in=logged_in, is_profile=False, message=m, user=user)
+
 @views_bp.route('/profile')
 @views_bp.route('/profile/settings')
 def profile_settings():
