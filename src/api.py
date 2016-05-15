@@ -443,7 +443,7 @@ class DestinationPoster(Resource):
         
         d = request.get_json()
         message_uuid =  d['message_uuid']
-        email = d['mymail@gmail.com']
+        email = d['email']
         m = session.query(Message).filter(Message.uuid==message_uuid).all()
         if not m:
             return {'message':'no message with such uuid'}, 400
