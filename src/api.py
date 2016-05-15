@@ -89,7 +89,7 @@ class Me(Resource):
 
 
 class Login(Resource):
-    def get(self):
+    def post(self):
         data = request.get_json()
         try:
             u = session.query(User)\
