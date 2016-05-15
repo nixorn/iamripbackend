@@ -42,6 +42,20 @@ def show_message(uuid):
         user = get_user(request)
     return render_template('message.jade', logged_in=logged_in, is_profile=False, message=m, user=user)
 
+@views_bp.route('/search')
+def search():
+    words = request.form['words']
+    m = session.query(Message).filter(Message.text.like("%"+words+"%")).all()
+    m = random.choice(m)
+    logged_in = False
+    if is_user_logged_it(request):
+        logged_in = True
+    if m:
+        user = session.query(User).filter(User.id==user_id).first()
+    else:
+        user = None
+    return render_template('message_random.jade', logged_in=logged_in, is_profile=False, message=m, user=user)
+
 @views_bp.route('/random')
 def show_random_message():
     m = session.query(Message).all()
