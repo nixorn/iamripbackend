@@ -59,10 +59,10 @@ def process_timer(timer):
 def loop():
     while 1:
         current_timers = session.query(Timer)\
-                                .filter(Timer.next_checkdate >= datetime.now() - relativedelta(minutes=5))\
+                                .filter(Timer.next_checkdate >= datetime.now() - relativedelta(minutes=20))\
                                 .all()
         
         for t in current_timers:
             process_timer(t)
 
-        time.sleep(240)
+        time.sleep(900)
