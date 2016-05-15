@@ -127,12 +127,14 @@ class MessagePoster(Resource):
             session.commit()
             t = Timer(duration=duration,
                       created_at=datetime.now(),
-                      next_checkdate=datetime.now+relativedelta(minutes=duration),
                       message_id=m.id)
+            # print(type(t))
             session.add(t)
             session.commit()
-            return {'id': m.id, 'id': m.uuid}, 201
-        except:
+
+            return {'id': m.id, 'uuid': m.uuid}, 201
+        except Exception as e:
+            print(e)
             session.rollback()
             return {}, 400
 

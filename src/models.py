@@ -110,7 +110,7 @@ class Timer(Base, ModelMixin):
         self.created_at = str(datetime.now())
         self.duration = kwargs['duration']
         self.message_id = kwargs['message_id']
-        self.next_checkdate = datetime.now() + relativedelta(minutes=int(self.duration))
+        self.next_checkdate = str(datetime.now() + relativedelta(minutes=int(self.duration)))
         self.last_checkdate = str(datetime.now())
 
     def __repr__(self):
