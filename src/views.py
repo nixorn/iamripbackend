@@ -30,6 +30,17 @@ def index():
         logged_in = True
     return render_template('index.jade', logged_in=logged_in, is_profile=False)
 
+@views_bp.route('/message/<str:uuid>')
+def show_message(uuid):
+    
+    m = session.query(Message).filter(Message.uuid==uuid).all()
+    m = m[0]
+    logged_in = False
+    if is_user_logged_it(request):
+        logged_in = True
+        user = get_user(request)
+    return render_template('message.jade', logged_in=logged_in, is_profile=False, message=m, author=user)
+
 @views_bp.route('/profile')
 @views_bp.route('/profile/settings')
 def profile_settings():
