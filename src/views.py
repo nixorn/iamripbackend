@@ -46,7 +46,10 @@ def show_message(uuid):
 def search():
     words = request.form['words']
     m = session.query(Message).filter(Message.text.like("%"+words+"%")).all()
-    m = random.choice(m)
+    if len(m) > 0:
+        m = random.choice(m)
+    else:
+        m = None
     logged_in = False
     if is_user_logged_it(request):
         logged_in = True
