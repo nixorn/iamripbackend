@@ -39,7 +39,7 @@ def show_message(uuid):
     if is_user_logged_it(request):
         logged_in = True
         user = get_user(request)
-    return render_template('message.jade', logged_in=logged_in, is_profile=False, message=m, author=user)
+    return render_template('message.jade', logged_in=logged_in, is_profile=False, message=m, user=user)
 
 @views_bp.route('/profile')
 @views_bp.route('/profile/settings')
