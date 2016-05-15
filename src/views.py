@@ -30,7 +30,7 @@ def index():
     logged_in = False
     if is_user_logged_it(request):
         logged_in = True
-    return render_template('index.jade', logged_in=logged_in, is_profile=False)
+    return render_template('index.jade', logged_in=logged_in, is_profile=False, is_index=True)
 
 @views_bp.route('/message/<uuid>')
 def show_message(uuid):
