@@ -8,8 +8,13 @@ from .engine import *
 from .models import *
     
 
-def send_message(message_id):
-    print ('not implemented', message_id)
+def process_message(message_id):
+    message = session.query(Message)\
+                     .filter(Message.id==message_id).one()
+    message.is_processed = True
+    session.add(message)
+    session.commit()
+
 
 
 def process_timer(timer):
@@ -49,7 +54,7 @@ def process_timer(timer):
             session.rollback()
             raise Exception('cant commit timer!')
     else:
-        send_message(message_id)
+        process_message(message_id)
 
 def loop():
     while 1:

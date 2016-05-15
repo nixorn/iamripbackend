@@ -89,7 +89,7 @@ class Me(Resource):
 
 
 class Login(Resource):
-    def post(self):
+    def get(self):
         data = request.get_json()
         try:
             u = session.query(User)\
@@ -100,7 +100,7 @@ class Login(Resource):
             resp.status = '200'
             return resp
         except:
-            return {'message': 'Invalid login or password'}, 406
+            return {'message': 'Invalid login or password'}, 400
 
 
 class MessagePoster(Resource):
@@ -172,6 +172,7 @@ class MessageManage(Resource):
         return {
             'text': m.text,
             'is_private': m.is_private,
+            'is_processed': m.is_processed,
             'duration': t.duration}, 200
 
     def patch(self, message_id):
@@ -218,6 +219,7 @@ class MessageManage(Resource):
         return {
             'text': m.text,
             'is_private': m.is_private,
+            'is_processed': m.is_processed,
             'duration': t.duration}, 200
 
     def delete(self, message_id):
@@ -267,6 +269,7 @@ class Messages(Resource):
         messages = session.query(Message.id, 
                                  Message.text,
                                  Message.is_private,
+                                 Message.is_processed,
                                  Timer.duration)\
                           .filter(Message.user_id==owner.id,
                                   Timer.message_id==Message.id)\
@@ -275,6 +278,7 @@ class Messages(Resource):
             {'id': m.id,
              'text': m.text,
              'is_private': m.is_private,
+             'is_processed': m.is_processed,
              'duration': m.duration} for m in messages]}, 200
 
 
