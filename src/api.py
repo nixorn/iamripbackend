@@ -27,6 +27,7 @@ class Register(Resource):
             resp.status = '201'
             return resp
         except :
+            sesson.rollback()
             return {}, 400
 
 
