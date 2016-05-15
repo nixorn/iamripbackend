@@ -46,10 +46,11 @@ def show_message(uuid):
 def show_random_message():
     m = session.query(Message).all()
     m = random.choice(m)
+    user_id = m.user_id
     logged_in = False
     if is_user_logged_it(request):
         logged_in = True
-        user = get_user(request)
+    user = session.query(User).filter(User.id==user_id).first()
     return render_template('message_random.jade', logged_in=logged_in, is_profile=False, message=m, user=user)
 
 @views_bp.route('/profile')
