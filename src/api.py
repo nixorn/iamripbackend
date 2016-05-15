@@ -449,7 +449,7 @@ class DestinationPoster(Resource):
             return {'message':'no message with such uuid'}, 400
         m = m[0]
         
-        dest = Destination(message_id=m.id, email=email)
+        dest = Destination(message_id=m.id, address=email)
         try:
             session.add(dest)
             session.commit()
