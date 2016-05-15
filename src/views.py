@@ -51,6 +51,7 @@ def search():
     if is_user_logged_it(request):
         logged_in = True
     if m:
+        user_id = m.user_id
         user = session.query(User).filter(User.id==user_id).first()
     else:
         user = None
