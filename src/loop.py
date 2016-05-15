@@ -25,7 +25,8 @@ def process_timer(timer):
     if not user:
         raise Exception('Timer have no user? WTF?')
     user = user[0]
-    
+    print('user', user)
+
     records = session.query(SourceRecord.url, Source.name)\
                      .filter(SourceRecord.user_id==user.id,
                              Source.id==SourceRecord.source_id)\
@@ -35,8 +36,10 @@ def process_timer(timer):
     
     visits = []
     for record in records:
+        print('record', record)
+        print('vk_id', parse_vk_id(record.url))
         if record.name == 'vk':
-            last_visit = get_last_visit_vk(record)
+            last_visit = get_last_visit_vk(parse_vk_id(record.url))
             visits.append(visit)
     if not visits:
         return
@@ -59,9 +62,10 @@ def process_timer(timer):
 def loop():
     while 1:
         current_timers = session.query(Timer)\
-                                .filter(Timer.next_checkdate >= datetime.now() - relativedelta(minutes=20))\
+                                .filter(Timer.next_checkdate >= datetime.now() - relativedelta(minutes=20),
+                                        Timer.next_checkdate <= datetime.now())\
                                 .all()
-        
+        print('\n\ntimers', current_timers, '\n\n\n')
         for t in current_timers:
             process_timer(t)
 

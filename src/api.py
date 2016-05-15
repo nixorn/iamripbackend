@@ -312,7 +312,7 @@ class SourceRecordPoster(Resource):
             return {'message': 'such record already exists'}
         
         
-        rec_dict.update({'user_id': owner_id})
+        rec_dict.update({'user_id': owner.id})
         
         rec = SourceRecord(**rec_dict)
         try:
@@ -435,8 +435,6 @@ class Destinations(Resource):
             {'id': d.id,
              'email': d.email} for d in res]}
 
-
-        
     
 api.add_resource(Register, '/register')
 api.add_resource(IsFree, '/isfree')
