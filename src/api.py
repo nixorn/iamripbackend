@@ -141,7 +141,7 @@ class MessagePoster(Resource):
                       message_id=m.id)
             session.add(t)
             session.commit()
-            return {'id': m.id}, 201
+            return {'id': m.id, 'id': m.uuid}, 201
         except:
             session.rollback()
             return {}, 400
