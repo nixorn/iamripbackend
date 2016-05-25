@@ -16,7 +16,7 @@ def run_loop():
     loop()
 
 def run_application():
-    app.run(debug=True)
+    app.run(debug=True, port=3000)
 
 def load_fixtures():
     for model_name in ['User', 'Message', 'Timer', 'Source', 'SourceRecord']:
